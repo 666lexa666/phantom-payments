@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from supabase import create_client, Client
-import httpx
+import requests
 import random
 import datetime
 import os
@@ -16,8 +16,8 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 def generate_numeric_id():
     return random.randint(10000000, 99999999)
 
-# 📤 Отправка запроса на Steam backend
-async def send_to_steam_backend(login, amount, api_login, api_key, backend_url):
+# 📤 Синхронная отправка запроса на Steam backend
+def send_to_steam_backend(login, amount, api_login, api_key, backend_url):
     request_data = {
         "steamId": login,
         "amount": amount,
@@ -25,20 +25,20 @@ async def send_to_steam_backend(login, amount, api_login, api_key, backend_url):
         "api_key": api_key,
     }
 
-    async with httpx.AsyncClient(timeout=20) as client:
-        res = await client.post(
-            backend_url,
-            headers={"Content-Type": "application/json"},
-            json=request_data,
-        )
+    res = requests.post(
+        backend_url,
+        headers={"Content-Type": "application/json"},
+        json=request_data,
+        timeout=20
+    )
 
-        if res.status_code >= 400:
-            raise Exception(f"Backend error: {res.status_code} {res.text}")
+    if res.status_code >= 400:
+        raise Exception(f"Backend error: {res.status_code} {res.text}")
 
-        return res.json()
+    return res.json()
 
 # 🔑 Получение свободного steam_login
-async def get_available_login():
+def get_available_login():
     logins_resp = supabase.table("available_logins").select("login").eq("used", False).execute()
     logins = logins_resp.data
 
@@ -59,9 +59,9 @@ async def get_available_login():
 
     raise Exception("No available logins left after checking clients")
 
-# 🧠 Основная логика
-@qr_code_bp.route("/qr-code", methods=["POST"])
-async def qr_code():
+# 🧠 Основная логика (синхронная)
+@qr_code_bp.route("/", methods=["POST"])
+def qr_code():
     try:
         api_key = request.headers.get("X-Api-Key")
         api_login = request.headers.get("X-Api-Login")
@@ -128,7 +128,7 @@ async def qr_code():
 
             steam_login = existing_client["steam_login"]
 
-            backend_data = await send_to_steam_backend(steam_login, amount, api_login, api_key, SECOND_SERVER_URL)
+            backend_data = send_to_steam_backend(steam_login, amount, api_login, api_key, SECOND_SERVER_URL)
             result = backend_data["result"]
 
             return jsonify({
@@ -140,7 +140,7 @@ async def qr_code():
             }), 200
 
         # =============== 2️⃣ Клиента нет — создаём ===============
-        chosen_login = await get_available_login()
+        chosen_login = get_available_login()
         new_id = generate_numeric_id()
 
         supabase.table("clients").insert({
@@ -154,7 +154,7 @@ async def qr_code():
             "steam_login": chosen_login,
         }).execute()
 
-        backend_data = await send_to_steam_backend(chosen_login, amount, api_login, api_key, SECOND_SERVER_URL)
+        backend_data = send_to_steam_backend(chosen_login, amount, api_login, api_key, SECOND_SERVER_URL)
         result = backend_data["result"]
 
         return jsonify({
@@ -166,5 +166,7 @@ async def qr_code():
         }), 200
 
     except Exception as e:
+        import traceback
         print("Error:", e)
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
