@@ -5,7 +5,7 @@ import random
 import datetime
 import os
 
-qr_code_bp = Blueprint("operations", __name__)
+qr_code_bp = Blueprint("qr_code", __name__)
 
 # 🔑 Инициализация Supabase
 SUPABASE_URL = os.environ.get("SUPABASE_URL")

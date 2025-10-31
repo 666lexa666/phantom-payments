@@ -16,7 +16,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 BIRS_API_KEY = os.environ.get("BIRS_API_KEY")  # Хранится в Render env vars
 
 
-@pikmi_bp.route("/api/order", methods=["POST"])
+@pikmi_bp.route("/", methods=["POST"])
 def create_order():
     try:
         data = request.get_json()

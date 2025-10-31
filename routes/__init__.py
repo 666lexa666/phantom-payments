@@ -1,8 +1,7 @@
-from flask import Blueprint
-from .operations import operations_bp
-from .pikmi import pikmi_bp
-from .webhook import webhook_bp
-from .test import test_bp
+from routes.api.operations import operations_bp
+from routes.api.pikmi import pikmi_bp
+from routes.api.webhook import webhook_bp
+from routes.api.test import test_bp
 
 # Основной blueprint для всех маршрутов
 api_bp = Blueprint("api", __name__)

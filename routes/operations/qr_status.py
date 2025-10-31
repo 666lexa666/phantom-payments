@@ -9,8 +9,8 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-
-@qr_status_bp.route("/", methods=["GET"])
+# GET /<opId>/qr-status
+@qr_status_bp.route("", methods=["GET"])
 def get_qr_status(opId):
     try:
         # Получаем API-данные из заголовков
@@ -35,10 +35,6 @@ def get_qr_status(opId):
                 return jsonify({"error": "Invalid API key"}), 401
 
             api_login = client_by_key["api_login"]
-
-        # Проверяем наличие opId
-        if not opId:
-            return jsonify({"error": "Missing opId"}), 400
 
         # Проверяем API-клиента
         client_resp = (

@@ -10,7 +10,7 @@ SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 
-@webhook_bp.route("/api/webhook", methods=["POST"])
+@webhook_bp.route("/", methods=["POST"])
 def handle_webhook():
     try:
         data = request.get_json()

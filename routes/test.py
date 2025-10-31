@@ -19,7 +19,7 @@ def root_check():
 
 
 # 🧪 Тестовый эндпоинт (api/test)
-@test_bp.route("/api/test", methods=["POST"])
+@test_bp.route("/", methods=["POST"])
 def test_order():
     try:
         data = request.get_json()
