@@ -4,7 +4,6 @@ import os
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)  # Разрешаем CORS-запросы (удобно для интеграции с фронтендом)
 
     # 🔹 Регистрируем все API-маршруты
     app.register_blueprint(api_bp, url_prefix="/api")
@@ -26,10 +25,10 @@ def create_app():
 
     return app
 
+# 🔧 Создаём глобальный объект для Gunicorn
+app = create_app()
 
 if __name__ == "__main__":
-    app = create_app()
-
     # 🔧 Порт берём из переменных окружения (удобно для Render)
     port = int(os.environ.get("PORT", 5000))
 
