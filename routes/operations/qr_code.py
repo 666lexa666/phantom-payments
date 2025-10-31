@@ -5,7 +5,7 @@ import random
 import datetime
 import os
 
-operations_bp = Blueprint("operations", __name__)
+qr_code_bp = Blueprint("operations", __name__)
 
 # 🔑 Инициализация Supabase
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
@@ -60,7 +60,7 @@ async def get_available_login():
     raise Exception("No available logins left after checking clients")
 
 # 🧠 Основная логика
-@operations_bp.route("/qr-code", methods=["POST"])
+@qr_code_bp.route("/qr-code", methods=["POST"])
 async def qr_code():
     try:
         api_key = request.headers.get("X-Api-Key")
